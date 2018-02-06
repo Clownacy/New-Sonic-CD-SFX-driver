@@ -1,4 +1,4 @@
-CXXFLAGS := -O3 -s
+CXXFLAGS := -O3 -s -static -Wall -Wextra
 
 all: s3p2bin.exe
 

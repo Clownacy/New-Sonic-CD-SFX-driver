@@ -62,5 +62,4 @@ echo.
 pause
 
 :LABLEXIT
-popd
 exit /b

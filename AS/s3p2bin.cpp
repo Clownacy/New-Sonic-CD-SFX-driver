@@ -4,12 +4,9 @@
 
 const char* codeFileName = NULL;
 const char* romFileName = NULL;
-const char* shareFileName = NULL;
-int compressedLength = 0;
 
 void printUsage() { printf("usage: s3p2bin.exe inputcodefile.p outputromfile.bin sharefile.h\n"); }
 bool buildRom(FILE* from, FILE* to);
-void editShareFile();
 
 int main(int argc, char *argv[])
 {
@@ -33,8 +30,6 @@ int main(int argc, char *argv[])
 			codeFileName = arg;
 		else if(!romFileName)
 			romFileName = arg;
-		else if(!shareFileName)
-			shareFileName = arg;
 	}
 
 	if(codeFileName && romFileName)
@@ -52,7 +47,6 @@ int main(int argc, char *argv[])
 				fclose(from);
 				if(built)
 				{
-					editShareFile();
 					printf(" ... done.");
 				}
 				else
@@ -72,33 +66,16 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void editShareFile()
-{
-	if(shareFileName && compressedLength > 0)
-	{
-		FILE* share = fopen(shareFileName, "rb+");
-		if(share)
-		{
-			fseek(share, 0, SEEK_SET);
-			fprintf(share, "comp_z80_size 0x%X ", compressedLength);
-			fclose(share);
-		}
-	}
-}
-
-long KComp3(FILE *Src, FILE *Dst, int SlideWin, int RecLen, int srcStart, int srcLen, bool Moduled);
-
 bool buildRom(FILE* from, FILE* to)
 {
 	if(fgetc(from) != 0x89) printf("\nWarning: First byte of a .p file should be $89");
 	if(fgetc(from) != 0x14) printf("\nWarning: Second byte of a .p file should be $14");
 	
 	int cpuType = 0, segmentType = 0, granularity = 0;
-	signed long start = 0, lastStart = 0, z80Start = 0;
-	unsigned short length = 0, lastLength = 0, z80Length = 0;
+	signed long start = 0;
+	unsigned short length = 0;
 	static const int scratchSize = 4096;
-	unsigned char scratch [scratchSize];
-	bool lastSegmentCompressed = false;
+	unsigned char scratch[scratchSize];
 
 	int check_size = 0;
 	bool done=false;
@@ -200,37 +177,8 @@ bool buildRom(FILE* from, FILE* to)
 			return false;
 		}
 
-		if(cpuType == 0x51 && (start != 0 && start != 0x1300) && lastSegmentCompressed)
-		{
-			printf("\nERROR: The compressed Z80 code (Z80 Sound Driver.asm) must have exactly two segments, one starting at $0 and one starting at $1300. That means no ORG/ALIGN/CNOP/EVEN or memory reservation commands in the Z80 code besides those two points and the size must be < 65535 bytes. The offending new segment starts at address $%X relative to the start of the Z80 code.", start);
-			return false;
-		}
-
-		if(cpuType == 0x51 && start == 0) // 0x51 is the type for Z80 family (0x01 is for 68000)
-		{
-			// Kosinski-compressed Z80 segment
-			z80Start = start;
-			start = lastStart + lastLength;
-			int srcStart = ftell(from);
-		//	compressedLength = KComp3(from, to, 8192, 256, srcStart, length, false);
-			for (unsigned int i = 0; i < length; ++i)
-			{
-				fputc(fgetc(from), to);
-			}
-			fseek(from, srcStart + length, SEEK_SET);
-			lastStart = start;
-			lastLength = length;
-			start += length;
-			continue;
-		}
-
-			if(start+3 < ftell(to)) // 3 bytes of leeway for instruction patching
-				printf("\nWarning: overlapping allocation detected! $%X < $%X", start, ftell(to));
-
-		lastStart = start;
-		lastLength = length;
-		lastSegmentCompressed = false;
-
+		if(start+3 < ftell(to)) // 3 bytes of leeway for instruction patching
+			printf("\nWarning: overlapping allocation detected! $%X < $%X", start, ftell(to));
 
 		fseek(to, start, SEEK_SET);
 
