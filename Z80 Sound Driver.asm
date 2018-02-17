@@ -120,12 +120,10 @@ zSFXNumber1:		ds.b 1	; Play_Sound_2
 zTempVariablesStart:
 
 zCommunication:	ds.b 1
-zSpecFM3FreqsSFX			ds.b 8
 zRingSpeaker:		ds.b 1
 zSFXVoiceTblPtr:	ds.b 2	; 2 bytes
 zSFXTempoDivider:	ds.b 1
 zCurrentPriority:	ds.b 1
-zFM3Settings:		ds.b 1
 
 	!org $1C3E
 zConditionalJumpFlag: ds.b 1
@@ -313,8 +311,6 @@ ResetYMTimerB:
 ; --> Timer B =	200 -> 59.45 Hz
 		rst	zWriteFMI	; set YM2612 Timer B = C8
 		ld	a, 2Fh
-		ld	hl, zFM3Settings
-		or	(hl)
 		ld	c, a
 		ld	a, 27h
 		rst	zWriteFMI
@@ -394,8 +390,6 @@ zUpdateFMorPSGTrack:
 zFMSendFreq:
 		bit	2, (ix+zTrack.PlaybackControl)	; Is SFX overriding this track?
 		ret	nz								; Return if yes
-		bit	0, (ix+zTrack.PlaybackControl)	; Is track in special mode (FM3 only)?
-		jp	nz, .special_mode				; Branch if yes
 
 .not_fm3:
 		ld	a, 0A4h							; Command to update frequency MSB
@@ -406,51 +400,6 @@ zFMSendFreq:
 		rst	zWriteFMIorII					; Send it to YM2612
 		ret
 ; ---------------------------------------------------------------------------
-.special_mode:
-		ld	a, (ix+zTrack.VoiceControl)		; a = voice control byte
-		cp	2								; Is this FM3?
-		jr	nz, .not_fm3					; Branch if not
-		ld	de, zSpecFM3FreqsSFX				; de = pointer to saved FM3 frequency shifts
-		ld	b, zSpecialFreqCommands_End-zSpecialFreqCommands	; Number of entries
-		ld	hl, zSpecialFreqCommands		; Lookup table
-
-		; DANGER! de is unset here, and could be pointing anywhere! Luckily,
-		; only reads are performed from it.
-.loop:
-		push	bc							; Save bc
-		ld	a, (hl)							; a = register selector
-		inc	hl								; Advance pointer
-		push	hl							; Save hl
-		ex	de, hl							; Exchange de and hl
-		ld	c, (hl)							; Get byte from whatever the hell de was pointing to
-		inc	hl								; Advance pointer
-		ld	b, (hl)							; Get byte from whatever the hell de was pointing to
-		inc	hl								; Advance pointer
-		ex	de, hl							; Exchange de and hl
-		ld	l, (ix+zTrack.FreqLow)			; l = low byte of track frequency
-		ld	h, (ix+zTrack.FreqHigh)			; h = high byte of track frequency
-		add	hl, bc							; hl = full frequency for operator
-		push	af							; Save af
-		ld	c, h							; High byte of frequency
-		rst	zWriteFMI					; Sent it to YM2612
-		pop	af								; Restore af
-		sub	4								; Move on to frequency LSB
-		ld	c, l							; Low byte of frequency
-		rst	zWriteFMI					; Sent it to YM2612
-		pop	hl								; Restore hl
-		pop	bc								; Restore bc
-		djnz	.loop						; Loop for all operators
-		ret
-; End of function zFMSendFreq
-
-; ---------------------------------------------------------------------------
-;loc_272
-zSpecialFreqCommands:
-		db 0ADh								; Operator 4 frequency MSB
-		db 0AEh								; Operator 3 frequency MSB
-		db 0ACh								; Operator 2 frequency MSB
-		db 0A6h								; Operator 1 frequency MSB
-zSpecialFreqCommands_End
 
 ; =============== S U B	R O U T	I N E =======================================
 ; Gets next note from the track's data stream. If any coordination flags are
@@ -967,8 +916,6 @@ zSFXTrackInitLoop:
 		ld	(de),a									; *de++ = *hl++ (initial playback control)
 		inc	de
 		ld	a, (de)							; Get the voice control byte from track RAM (to deal with SFX already there)
-		cp	2								; Is this FM3?
-		call	z, zFM3NormalMode			; Set FM3 to normal mode if so
 		ldi									; *de++ = *hl++ (copy channel identifier)
 		ld	a, (zSFXTempoDivider)			; Get SFX tempo divider
 		ld	(de), a							; Store it to RAM
@@ -1061,13 +1008,6 @@ zStopAllSound:
 
 		call	zPSGSilenceAll				; Silence PSG
 
-;loc_979
-zFM3NormalMode:
-		ld	a, 0Fh								; a = 0 (is 0Fh in Z80 Type 1)
-		ld	(zFM3Settings), a				; Save FM3 settings
-		ld	c, a							; FM3 mode: normal mode
-		ld	a, 27h							; FM3 special settings
-		rst	zWriteFMI					; Set it
 		jp	zClearNextSound
 ; End of function zStopAllSound
 
