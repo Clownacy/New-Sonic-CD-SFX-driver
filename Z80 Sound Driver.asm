@@ -1059,13 +1059,6 @@ zDoSoundQueue:
 
 zDoOneSndQueue:
 		ld	a, (de)
-		cp	SndID__End
-		jr	c, .is_valid
-		ld	a, (zCurrentPriority)
-		or	a
-		jr	z, .queue_sound
-		jr	.remove_sound_from_queue
-.is_valid:
 		sub	SndID__First
 		ret	c;, .remove_sound_from_queue
 		ld	hl, zSndPriorities
@@ -1891,14 +1884,20 @@ z80_SFXPointers:
 
 		dw	Sound_80,Sound_81,Sound_82
 
-zSndPriorities:	db  70h, 7Ah, 70h, 7Dh,	7Dh, 70h, 70h, 7Ah, 70h, 6Dh, 7Dh
-		db  7Ah, 7Ah, 70h, 7Ah,	6Dh, 70h, 6Dh, 70h, 70h, 6Dh, 6Dh
-		db  6Dh, 70h, 70h, 7Dh,	70h, 7Dh, 70h, 7Dh, 7Ah, 7Ah, 70h
-		db  70h, 70h, 6Dh, 70h,	70h, 7Ah, 70h, 7Dh, 7Dh, 6Ah, 6Dh
-		db  7Dh, 6Dh, 6Dh, 6Dh,	70h, 70h, 70h, 7Ah, 70h, 70h, 70h
-		db  70h, 7Dh, 70h, 70h,	6Dh, 6Dh, 70h, 7Ah, 70h, 6Dh, 6Dh
-		db  7Ah, 70h, 70h, 6Dh,	6Ah, 6Dh, 70h, 70h, 70h, 70h, 70h
-		db  70h, 70h
+zSndPriorities:	db  70h, 7Ah, 70h, 7Dh, 7Dh, 70h, 70h, 7Ah
+		db  70h, 6Dh, 7Dh, 7Ah, 7Ah, 70h, 7Ah, 6Dh
+		db  70h, 6Dh, 70h, 70h, 6Dh, 6Dh, 6Dh, 70h
+		db  70h, 7Dh, 70h, 7Dh, 70h, 7Dh, 7Ah, 7Ah
+		db  70h, 70h, 70h, 6Dh, 70h, 70h, 7Ah, 70h
+		db  7Dh, 7Dh, 6Ah, 6Dh, 7Dh, 6Dh, 6Dh, 6Dh
+		db  70h, 70h, 70h, 7Ah, 70h, 70h, 70h, 70h
+		db  7Dh, 70h, 70h, 6Dh, 6Dh, 70h, 7Ah, 70h
+		db  6Dh, 6Dh, 7Ah, 70h, 70h, 6Dh, 6Ah, 6Dh
+		db  70h, 70h, 70h, 70h, 70h, 70h, 70h, 04h
+		db  08h, 01h, 02h, 80h, 00h,0EAh, 07h,0F6h
+		db  10h, 80h, 01h,0F6h, 07h,0F7h, 10h,0EFh
+		db  00h,0AFh, 01h, 80h, 01h,0F7h, 00h, 0Bh
+		db 0ECh, 07h,0F2h,0EFh, 00h, 80h, 01h,0ADh
 ; ---------------------------------------------------------------------------
 	restore
 	padding off
