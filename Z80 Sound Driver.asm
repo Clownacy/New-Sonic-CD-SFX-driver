@@ -159,8 +159,7 @@ Z80_SoundDriver:
 SndID__First			= 90h
 SndID__End				= 0E0h
 ; ---------------------------------------------------------------------------
-NoteRest				= 080h
-FirstCoordFlag			= 0E0h
+FirstCoordFlag			= 0EBh
 ; ---------------------------------------------------------------------------
 
 ; macro to make a certain error message clearer should you happen to get it...
@@ -1188,24 +1187,17 @@ zCoordFlagSwitchTable:
 		dw cfPanningAMSFMS					; 0E0h
 		dw cfDetune							; 0E1h
 		dw cfSetComm				; 0E2h
-		dw 0ADDEh				; 0E3h
 		dw cfSetVolume						; 0E4h
 		dw cfChangeVolume2					; 0E5h
 		dw cfChangeVolume					; 0E6h
 		dw cfPreventAttack					; 0E7h
-		dw 0ADDEh						; 0E8h
-		dw 0ADDEh					; 0E9h
 		dw cfActualConditionalJump;cfPlayDACSample					; 0EAh
-		dw 0ADDEh				; 0EBh
 		dw cfChangePSGVolume				; 0ECh
 		dw cfSetKey							; 0EDh
-		dw 0ADDEh						; 0EEh
 		dw cfSetVoice						; 0EFh
 		dw cfModulation						; 0F0h
-		dw 0ADDEh				; 0F1h
 		dw cfStopTrack						; 0F2h
 		dw cfSetPSGNoise					; 0F3h
-		dw 0ADDEh					; 0F4h
 		dw cfSetPSGVolEnv					; 0F5h
 		dw cfJumpTo							; 0F6h
 		dw cfRepeatAtPos					; 0F7h

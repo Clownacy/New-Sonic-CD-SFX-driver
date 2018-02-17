@@ -326,12 +326,12 @@ panRight set $40
 panLeft set $80
 panCentre set $C0
 panCenter set $C0 ; silly Americans :U
-	dc.b $E0,direction+amsfms
+	dc.b $EB,direction+amsfms
 	endm
 
 ; E1xx - Set channel detune to val
 smpsDetune macro val
-	dc.b	$E1,val
+	dc.b	$EC,val
 	endm
 
 ; E2xx - Useless
@@ -344,14 +344,14 @@ smpsDetune macro val
 ; Return (used after smpsCall)
 smpsReturn macro val
 	if SonicDriverVer>=3
-		dc.b	$F9
+		dc.b	$FD
 	else
 		dc.b	$E3
 	endif
 	endm
 
 smpsSetComm macro val
-	dc.b	$E2,val
+	dc.b	$ED,val
 	endm
 
 ; E5xx - Set channel tempo divider to xx
@@ -368,11 +368,11 @@ smpsSetComm macro val
 
 ; E6xx - Alter Volume by xx
 smpsAlterVol macro val
-	dc.b	$E6,val
+	dc.b	$F0,val
 	endm
 
 ; E7 - Prevent attack of next note
-smpsNoAttack	EQU $E7
+smpsNoAttack	EQU $F1
 
 ; E8xx - Set note fill to xx
 ;smpsNoteFill macro val
@@ -392,7 +392,7 @@ smpsNoAttack	EQU $E7
 ; Add xx to channel pitch
 smpsChangeTransposition macro val
 	if SonicDriverVer>=3
-		dc.b	$FB,val
+		dc.b	$FF,val
 	else
 		dc.b	$E9,val
 	endif
@@ -420,7 +420,7 @@ smpsChangeTransposition macro val
 ; ECxx - Set Volume to xx
 smpsSetVol macro val
 	if SonicDriverVer>=3
-		dc.b	$E4,val
+		dc.b	$EE,val
 	else
 		fatal "Coord. Flag to set volume (instead of volume attenuation) does not exist in S1 or S2 drivers. Complain to Flamewing to add it."
 	endif
@@ -428,7 +428,7 @@ smpsSetVol macro val
 
 ; Works on all drivers
 smpsPSGAlterVol macro vol
-	dc.b	$EC,vol
+	dc.b	$F3,vol
 	endm
 
 ; Clears pushing sound flag in S1
@@ -446,22 +446,22 @@ smpsStopSpecial macro
 		dc.b	$EE
 	else
 		message "Coord. Flag to stop special SFX does not exist in S2 or S3 drivers. Complain to Flamewing to add it. With adequate caution, smpsStop can do this job."
-		dc.b	$F2
+		smpsStop
 	endif
 	endm
 
 ; EFxx[yy] - Set Voice of FM channel to xx; xx < 0 means yy present
 smpsFMvoice macro voice,songID
 	if (SonicDriverVer>=3)&&("songID"<>"")
-		dc.b	$EF,voice|$80,songID+$81
+		dc.b	$F5,voice|$80,songID+$81
 	else
-		dc.b	$EF,voice
+		dc.b	$F5,voice
 	endif
 	endm
 
 ; F0wwxxyyzz - Modulation - ww: wait time - xx: modulation speed - yy: change per step - zz: number of steps
 smpsModSet macro wait,speed,change,step
-	dc.b	$F0
+	dc.b	$F6
 	if (SonicDriverVer>=3)&&(SourceDriver<3)
 		dc.b	wait+1,speed,change,((step+1) * speed) & $FF
 	elseif (SonicDriverVer<3)&&(SourceDriver>=3)
@@ -487,18 +487,18 @@ smpsModSet macro wait,speed,change,step
 
 ; F2 - End of channel
 smpsStop macro
-	dc.b	$F2
+	dc.b	$F7
 	endm
 
 ; F3xx - PSG waveform to xx
 smpsPSGform macro form
-	dc.b	$F3,form
+	dc.b	$F8,form
 	endm
 
 ; Turn off Modulation
 smpsModOff macro
 	if SonicDriverVer>=3
-		dc.b	$FA
+		dc.b	$FE
 	else
 		dc.b	$F4
 	endif
@@ -506,12 +506,12 @@ smpsModOff macro
 
 ; F5xx - PSG voice to xx
 smpsPSGvoice macro voice
-	dc.b	$F5,voice
+	dc.b	$F9,voice
 	endm
 
 ; F6xxxx - Jump to xxxx
 smpsJump macro loc
-	dc.b	$F6
+	dc.b	$FA
 	if SonicDriverVer<>1
 		dc.w	z80_ptr_new(loc)
 	else
@@ -521,7 +521,7 @@ smpsJump macro loc
 
 ; F7xxyyzzzz - Loop back to zzzz yy times, xx being the loop index for loop recursion fixing
 smpsLoop macro index,loops,loc
-	dc.b	$F7
+	dc.b	$FB
 	dc.b	index,loops
 	if SonicDriverVer<>1
 		dc.w	z80_ptr_new(loc)
@@ -532,7 +532,7 @@ smpsLoop macro index,loops,loc
 
 ; F8xxxx - Call pattern at xxxx, saving return point
 smpsCall macro loc
-	dc.b	$F8
+	dc.b	$FC
 	if SonicDriverVer<>1
 		dc.w	z80_ptr_new(loc)
 	else
@@ -543,9 +543,9 @@ smpsCall macro loc
 ; Alter Volume
 smpsFMAlterVol macro val1,val2
 	if (SonicDriverVer>=3)&&("val2"<>"")
-		dc.b	$E5,val1,val2
+		dc.b	$EF,val1,val2
 	else
-		dc.b	$E6,val1
+		dc.b	$F0,val1
 	endif
 	endm
 
@@ -562,7 +562,7 @@ smpsFMAlterVol macro val1,val2
 ;	endm
 
 smpsActualConditionalJump macro loc
-	dc.b	$EA
+	dc.b	$F2
 	dc.w	z80_ptr_new(loc)
 	endm
 
@@ -574,7 +574,7 @@ smpsActualConditionalJump macro loc
 
 ; Set note values to xx-$40
 smpsSetNote macro val
-	dc.b	$ED,val
+	dc.b	$F4,val
 	endm
 
 ;smpsFMICommand macro reg,val
