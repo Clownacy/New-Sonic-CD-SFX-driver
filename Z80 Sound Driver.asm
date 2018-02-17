@@ -74,15 +74,13 @@ zTrack STRUCT DOTS
 	ModulationPtrHigh:	ds.b 1	; S&K: 21h
 	; ---------------------------------
 	; Alternate names for same offset:
-	ModulationValLow:			; S&K: 22h
-	ModEnvSens:			ds.b 1	; S&K: 22h
+	ModulationValLow:		ds.b 1	; S&K: 22h
 	; ---------------------------------
 	ModulationValHigh:	ds.b 1	; S&K: 23h
 	ModulationWait:		ds.b 1	; S&K: 24h
 	; ---------------------------------
 	; Alternate names for same offset:
-	ModulationSpeed:			; S&K: 25h
-	ModEnvIndex:		ds.b 1	; S&K: 25h
+	ModulationSpeed:	ds.b 1	; S&K: 25h
 	; ---------------------------------
 	ModulationDelta:	ds.b 1	; S&K: 26h
 	ModulationSteps:	ds.b 1	; S&K: 27h
