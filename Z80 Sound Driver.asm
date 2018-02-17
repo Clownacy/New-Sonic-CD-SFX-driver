@@ -1092,26 +1092,6 @@ zDoOneSndQueue:
 ; End of function DoOneSndQueue
 
 ; =============== S U B	R O U T	I N E =======================================
-; Sets D1L to minimum, RR to maximum and TL to minimum amplitude for all
-; operators on this track's channel, then sends note off for the same channel.
-;
-; Input:  ix    Pointer to track RAM
-; Output: a     Damaged
-;         b     Damaged
-;         c     Damaged
-;sub_9F6
-zFMSilenceChannel:
-		call	zSetMaxRelRate
-		ld	a, 40h							; Set total level...
-		ld	c, 7Fh							; ... to minimum envelope amplitude...
-		call	zFMOperatorWriteLoop		; ... for all operators of this track's channel
-		ld	a, 28h							; Write to KEY ON/OFF port
-		ld	c, (ix+zTrack.VoiceControl)		; Send key off
-		rst	zWriteFMI						; Send it
-		ret
-; End of function zFMSilenceChannel
-
-; =============== S U B	R O U T	I N E =======================================
 ; Sets D1L to minimum and RR to maximum for all operators on this track's
 ; channel.
 ;
