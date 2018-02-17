@@ -24,7 +24,7 @@ set AS_MSGPATH=AS\Win32
 set USEANSI=n
 
 REM // allow the user to choose to output error messages to file by supplying the -logerrors parameter
-IF "%1"=="-logerrors" ( "AS\Win32\asw.exe" -xx -q -E -A -L "Z80 Sound Driver.asm" ) ELSE "AS\Win32\asw.exe" -xx -q -A -L "Z80 Sound Driver.asm"
+IF "%1"=="-logerrors" ( "AS\Win32\asw.exe" -U -xx -q -E -A -L "Z80 Sound Driver.asm" ) ELSE "AS\Win32\asw.exe" -U -xx -q -A -L "Z80 Sound Driver.asm"
 
 REM // if there were errors, a log file is produced
 IF "%1"=="-logerrors" ( IF EXIST "Z80 Sound Driver.log" goto LABLERROR3 )
