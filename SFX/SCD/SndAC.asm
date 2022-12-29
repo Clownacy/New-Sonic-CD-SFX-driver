@@ -1,5 +1,5 @@
 SndAC_Header:
-	smpsHeaderStartSong 3
+	smpsHeaderStartSong 3, 1
 	smpsHeaderVoice     SndAC_Voices
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $02

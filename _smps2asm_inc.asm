@@ -1,6 +1,8 @@
 ; ===========================================================================
 ; Created by Flamewing, based on S1SMPS2ASM version 1.1 by Marc Gordon (AKA Cinossu)
 ; ===========================================================================
+SMPS2ASMVer	= 1
+
 z80_ptr_new function x,(x)<<8&$FF00|(x)>>8&$FF
 
 ; PSG conversion to S3/S&K/S3D drivers require a tone shift of 12 semi-tones.
@@ -200,14 +202,28 @@ CheckedChannelPointer macro loc
 	endm
 ; ---------------------------------------------------------------------------
 ; Header Macros
-smpsHeaderStartSong macro ver
+smpsHeaderStartSong macro ver, sourcesmps2asmver
+
 SourceDriver set ver
+
+	if ("sourcesmps2asmver"<>"")
+SourceSMPS2ASM set sourcesmps2asmver
+	else
+SourceSMPS2ASM set 0
+	endif
+
 songStart set *
+
+	if MOMPASS==2
+	if SMPS2ASMVer < SourceSMPS2ASM
+	message "Song at 0x\{songStart} was made for a newer version of SMPS2ASM (this is version \{SMPS2ASMVer}, but song wants at least version \{SourceSMPS2ASM})."
+	endif
+	endif
+
 	endm
 
-smpsHeaderStartSongConvert macro ver
-SourceDriver set ver
-songStart set *
+smpsHeaderStartSongConvert macro ver, smps2asmver
+	smpsHeaderStartSong	ver, smps2asmver
 	endm
 
 smpsHeaderVoiceNull macro
@@ -778,20 +794,35 @@ vcTL4 set op4
 	dc.b	(vcUnusedBits<<6)+(vcFeedback<<3)+vcAlgorithm
 ;   0     1     2     3     4     5     6     7
 ;%1000,%1000,%1000,%1000,%1010,%1110,%1110,%1111
+	if SourceSMPS2ASM==0
+vcTLMask4 set ((vcAlgorithm==7)<<7)
+vcTLMask3 set ((vcAlgorithm>=4)<<7)
+vcTLMask2 set ((vcAlgorithm>=5)<<7)
+vcTLMask1 set $80
+	endif
+
 	if SonicDriverVer==2
 		dc.b	(vcDT4<<4)+vcCF4 ,(vcDT2<<4)+vcCF2 ,(vcDT3<<4)+vcCF3 ,(vcDT1<<4)+vcCF1
 		dc.b	(vcRS4<<6)+vcAR4 ,(vcRS2<<6)+vcAR2 ,(vcRS3<<6)+vcAR3 ,(vcRS1<<6)+vcAR1
 		dc.b	(vcAM4<<5)+vcD1R4,(vcAM2<<5)+vcD1R2,(vcAM3<<5)+vcD1R3,(vcAM1<<5)+vcD1R1
 		dc.b	vcD2R4           ,vcD2R2           ,vcD2R3           ,vcD2R1
 		dc.b	(vcDL4<<4)+vcRR4 ,(vcDL2<<4)+vcRR2 ,(vcDL3<<4)+vcRR3 ,(vcDL1<<4)+vcRR1
+	if SourceSMPS2ASM==0
+		dc.b	vcTL4|vcTLMask4  ,vcTL2|vcTLMask2  ,vcTL3|vcTLMask3  ,vcTL1|vcTLMask1
+	else
 		dc.b	vcTL4            ,vcTL2            ,vcTL3            ,vcTL1
+	endif
 	else
 		dc.b	(vcDT4<<4)+vcCF4 ,(vcDT3<<4)+vcCF3 ,(vcDT2<<4)+vcCF2 ,(vcDT1<<4)+vcCF1
 		dc.b	(vcRS4<<6)+vcAR4 ,(vcRS3<<6)+vcAR3 ,(vcRS2<<6)+vcAR2 ,(vcRS1<<6)+vcAR1
 		dc.b	(vcAM4<<5)+vcD1R4,(vcAM3<<5)+vcD1R3,(vcAM2<<5)+vcD1R2,(vcAM1<<5)+vcD1R1
 		dc.b	vcD2R4           ,vcD2R3           ,vcD2R2           ,vcD2R1
 		dc.b	(vcDL4<<4)+vcRR4 ,(vcDL3<<4)+vcRR3 ,(vcDL2<<4)+vcRR2 ,(vcDL1<<4)+vcRR1
+	if SourceSMPS2ASM==0
+		dc.b	vcTL4|vcTLMask4  ,vcTL3|vcTLMask3  ,vcTL2|vcTLMask2  ,vcTL1|vcTLMask1
+	else
 		dc.b	vcTL4            ,vcTL3            ,vcTL2            ,vcTL1
+	endif
 	endif
 	endm
 

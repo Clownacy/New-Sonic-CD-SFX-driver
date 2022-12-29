@@ -1,5 +1,5 @@
 SndD3_Header:
-	smpsHeaderStartSong 3
+	smpsHeaderStartSong 3, 1
 	smpsHeaderVoice     SndD3_Voices
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $02

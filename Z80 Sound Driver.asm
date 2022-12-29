@@ -22,7 +22,7 @@ SonicDriverVer = 4
 use_s1_samples = 0
 use_s2_samples = 0
 use_s3_samples = 0
-use_sk_samples = 1
+use_sk_samples = 0
 use_s3d_samples = 0
 	include "_smps2asm_inc.asm"
 
@@ -326,7 +326,7 @@ zUpdateEverything:
 ; =============== S U B	R O U T	I N E =======================================
 ;
 ;sub_19E
-zUpdateSFXTracks:
+; zUpdateSFXTracks:
 		ld	ix, zTracksSFXStart				; ix = start of SFX track RAM
 		ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrack.len	; Number of channels
 
@@ -697,9 +697,9 @@ zUpdateFreq:
 zGetFMInstrumentPointer:
 		ld	l, (ix+zTrack.VoicesLow)		; l = low byte of track's voice pointer
 		ld	h, (ix+zTrack.VoicesHigh)		; h = high byte of track's voice pointer
-		xor	a								; a = 0
-		or	b								; Is FM instrument the first one (zero)?
+		or	a								; Is FM instrument the first one (zero)?
 		ret	z								; Return if so
+		ld	b, a
 		ld	de, 25							; Size of each FM instrument
 
 .loop:
@@ -1410,7 +1410,6 @@ cfSetVoice:
 		ld	a, (de)							; Get voice index
 		ld	(ix+zTrack.VoiceIndex), a		; Store to track RAM
 		push	de							; Save de
-		ld	b, a							; b = instrument index
 		call	zGetFMInstrumentPointer		; hl = pointer to instrument data
 
 zSetVoiceDoUpload:

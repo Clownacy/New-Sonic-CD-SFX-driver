@@ -1,5 +1,5 @@
 Snd9B_Header:
-	smpsHeaderStartSong 3
+	smpsHeaderStartSong 3, 3
 	smpsHeaderVoice     Snd9B_Voices
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $01

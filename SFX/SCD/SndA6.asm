@@ -1,5 +1,5 @@
 SndA6_Header:
-	smpsHeaderStartSong 3
+	smpsHeaderStartSong 3, 1
 	smpsHeaderVoice     SndA6_Voices
 	smpsHeaderTempoSFX  $01
 	smpsHeaderChanSFX   $01
