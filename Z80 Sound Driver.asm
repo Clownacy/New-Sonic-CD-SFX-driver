@@ -288,6 +288,11 @@ zInitAudioDriver:
 		djnz	$							; Loop in this instruction, decrementing b each iteration, until b = 0
 		dec	c								; c--
 		jr	z, .loop						; Loop if c = 0
+		
+		ld	a, 0Fh							; Make sure the YM2612 timers are enabled
+		ld	c, a
+		ld	a, 27h
+		rst	zWriteFMI
 
 		call	zStopAllSound					; Stop all music
 
