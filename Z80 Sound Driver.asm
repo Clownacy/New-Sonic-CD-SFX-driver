@@ -290,6 +290,7 @@ zInitAudioDriver:
 		jr	z, .loop						; Loop if c = 0
 
 		call	zStopAllSound					; Stop all music
+		call	ResetYMTimerB					; Trigger timer so that the following check does not hang the driver forever
 
 .forever_loop:
 		call	zDoSoundQueue
